@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Jumbotron, Container, CardColumns, Card, Button } from 'react-bootstrap';
 
-import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
@@ -18,10 +17,6 @@ const SavedBooks = () => {
 
   const userData = data?.me || {};
 
-  // use this to determine if `useEffect()` hook needs to run again
-  const userDataLength = Object.keys(userData).length;
-
-  // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
@@ -30,31 +25,29 @@ const SavedBooks = () => {
     }
 
     try {
-      const response = await deleteBook(bookId, token);
+      await deleteBook({
+        variables: { bookId },
+      });
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
+      // upon success, remove book's id from localStorage
+      removeBookId(bookId);
+      document.getElementById(bookId).remove();
+      let counterEl = document.getElementById('counter');
+      let currentNum = parseInt(counterEl.innerText.split(' ')[1]);
+      if (currentNum === 1) {
+        return (counterEl.innerText = 'You have no saved books!');
+      } else {
+        counterEl.innerText = `Viewing ${currentNum - 1} saved ${
+          currentNum === 1 ? 'book' : 'books'
+        }`;
       }
-
-         // upon success, remove book's id from localStorage
-         removeBookId(bookId);
-         document.getElementById(bookId).remove();
-         let counterEl = document.getElementById('counter');
-         let currentNum = parseInt(counterEl.innerText.split(' ')[1]);
-         if (currentNum === 1) {
-           return (counterEl.innerText = 'You have no saved books!');
-         } else {
-           counterEl.innerText = `Viewing ${currentNum - 1} saved ${
-             currentNum === 1 ? 'book' : 'books'
-           }`;
-         }
-       } catch (err) {
-         console.error(err);
-       }
-     };
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // if data isn't here yet, say so
-  if (!userDataLength) {
+  if (loading) {
     return <h2>LOADING...</h2>;
   }
 
