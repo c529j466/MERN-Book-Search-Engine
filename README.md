@@ -11,12 +11,12 @@ For a user to install this app, they would need to clone my repository to their 
 
 ## Usage
 
-![Insomnia Screenshot](./)
+![App Screenshot](./client/public/Screenshot%20(8).png)
 
 
 Heroku Link:
 
-
+https://mern-book-search-engine3.herokuapp.com/
 
 ## Credits
 
